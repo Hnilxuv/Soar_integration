@@ -865,11 +865,10 @@ def feed_alerts():
         Lấy alert cuối cùng đã từng lấy. nếu không có thì lấy tối đa 3 ngày trước đó.
         :return:
         """
-        oldest_time = int(time.time() * 1000) - 3 * 24 * 60 * 60 * 1000
         result = datafeedctl.get_last_run_status()
         # orenctl.log(f"get_last_run_status = {result}")
         if not result:
-            return oldest_time
+            return {}
         if isinstance(result, str):
             try:
                 result = json.loads(result)
@@ -938,12 +937,13 @@ def feed_alerts():
     is_archive = orenctl.getHeader("is_archive")
 
     last_alert = get_last_alert()
-    last_alert_time = last_alert.get("last_alert_time")
-    last_next_token = last_alert.get("last_next_token")
-    last_alert_id = last_alert.get("last_alert_id")
+    last_time = int(time.time()*1000) - 3*24*60*60*1000
+    last_alert_time = last_alert.get("last_alert_time", last_time)
+    last_next_token = last_alert.get("last_next_token", None)
+    last_alert_id = last_alert.get("last_alert_id", None)
 
     criterion_conditions: Dict[str, "ConditionTypeDef"] = {"severity": {"Gte": int(severity_condition)},
-                                                           "createdAt": {"Gte": last_alert}}
+                                                           "createdAt": {"Gte": last_alert_time}}
 
     if is_archive:
         # orenctl.log("Fetching Amazon GuardDuty with Archive")

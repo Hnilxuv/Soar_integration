@@ -1,4 +1,7 @@
 import json
+import os
+import tempfile
+
 import boto3
 from botocore.config import Config
 import urllib3
@@ -226,15 +229,17 @@ def download_file_command():
     key = orenctl.getArg("key")
     S3 = AwsS3()
     client = S3.create_client()
-    path = key
+    tmpdir = tempfile.mkdtemp()
+    path = os.path.join(tmpdir, key)
     with open(path, "wb") as data:
         client.download_fileobj(bucket, key, data)
-
-    location = orenctl.upload(path)
-
+    location = orenctl.upload_file(path, None)
+    os.remove(path)
+    os.rmdir(tmpdir)
     orenctl.results({
         "status_command": "Success",
-        "message": f"Policy was deleted from {bucket}"
+        "location": location,
+        "file_name": key
     })
     return
 
@@ -360,17 +365,23 @@ def upload_file_command():
     key = orenctl.getArg("key")
     location = orenctl.getArg("location")
 
-    file_name = orenctl.download_file(key, location)
-
+    tmpdir = tempfile.mkdtemp()
+    path = os.path.join(tmpdir, key)
+    orenctl.download_file(location, path)
     S3 = AwsS3()
     client = S3.create_client()
-    with open(file_name, 'rb') as data:
+    with open(path, 'rb') as data:
         client.upload_fileobj(data, bucket, key)
+        data.close()
         orenctl.results({
             "status_command": "Success",
             "message": f"File {key} was uploaded successfully to {bucket}",
         })
-        return
+    os.remove(path)
+    os.rmdir(tmpdir)
+    return
+
+
 
 
 if orenctl.command == "aws_s3_create_bucket":
