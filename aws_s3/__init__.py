@@ -5,8 +5,7 @@ import tempfile
 import boto3
 from botocore.config import Config
 import urllib3
-import orenctl
-
+from aws_s3 import orenctl
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 SERVICE_NAME = "S3"
@@ -54,12 +53,12 @@ class AwsS3(object):
 
 
 def create_bucket_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
     kwargs = {
-        "Bucket": bucket
+        "Bucket": bucket.lower()
     }
     if orenctl.getArg("acl"):
         kwargs["ACL"] = orenctl.getArg("acl")
@@ -97,14 +96,14 @@ def create_bucket_command():
 
 
 def delete_bucket_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
 
     S3 = AwsS3()
     client = S3.create_client()
-    response = client.delete_bucket(Bucket=bucket)
+    response = client.delete_bucket(Bucket=bucket.lower())
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 204:
         orenctl.results({
@@ -139,14 +138,14 @@ def list_buckets_command():
 
 
 def get_bucket_policy_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
 
     S3 = AwsS3()
     client = S3.create_client()
-    response = client.get_bucket_policy(Bucket=bucket)
+    response = client.get_bucket_policy(Bucket=bucket.lower())
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
@@ -162,7 +161,7 @@ def get_bucket_policy_command():
 
 
 def put_bucket_policy_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
@@ -172,7 +171,7 @@ def put_bucket_policy_command():
         return
 
     kwargs = {
-        "Bucket": bucket,
+        "Bucket": bucket.lower(),
         "Policy": policy
     }
     if orenctl.getArg("confirm_remove_self_bucket_access"):
@@ -198,14 +197,14 @@ def put_bucket_policy_command():
 
 
 def delete_bucket_policy_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
 
     S3 = AwsS3()
     client = S3.create_client()
-    response = client.delete_bucket_policy(Bucket=bucket)
+    response = client.delete_bucket_policy(Bucket=bucket.lower())
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 204:
         orenctl.results({
@@ -216,13 +215,13 @@ def delete_bucket_policy_command():
 
     orenctl.results({
         "status_command": "Success",
-        "message": f"Policy was deleted from {bucket}"
+        "message": f"Policy was deleted from {bucket.lower()}"
     })
     return
 
 
 def download_file_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
@@ -232,7 +231,7 @@ def download_file_command():
     tmpdir = tempfile.mkdtemp()
     path = os.path.join(tmpdir, key)
     with open(path, "wb") as data:
-        client.download_fileobj(bucket, key, data)
+        client.download_fileobj(bucket.lower(), key, data)
     location = orenctl.upload_file(path, None)
     os.remove(path)
     os.rmdir(tmpdir)
@@ -245,12 +244,12 @@ def download_file_command():
 
 
 def list_objects_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
     kwargs = {
-        "Bucket": bucket,
+        "Bucket": bucket.lower(),
     }
     if orenctl.getArg("delimiter"):
         kwargs["Delimiter"] = orenctl.getArg("delimiter")
@@ -271,14 +270,14 @@ def list_objects_command():
 
 
 def get_public_access_block_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
 
     S3 = AwsS3()
     client = S3.create_client()
-    response = client.get_public_access_block(Bucket=bucket)
+    response = client.get_public_access_block(Bucket=bucket.lower())
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
@@ -290,16 +289,16 @@ def get_public_access_block_command():
         "status_command": "Success",
         "public_access_block": public_access_block_configuration,
     })
-    return 
+    return
 
 
 def put_public_access_block_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
     kwargs = {
-        "Bucket": bucket,
+        "Bucket": bucket.lower(),
         "PublicAccessBlockConfiguration": {
             "BlockPublicAcls": orenctl.getArg("block_public_acls"),
             "IgnorePublicAcls": orenctl.getArg("ignore_public_acls"),
@@ -311,26 +310,26 @@ def put_public_access_block_command():
     S3 = AwsS3()
     client = S3.create_client()
     response = client.put_public_access_block(**kwargs)
-    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") == 200:
+    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
             "message": f"Couldn't apply public access block to the {bucket} bucket"
         })
         return
     orenctl.results({
-        "status_command": "Fail",
+        "status_command": "Success",
         "message": f"Successfully applied public access block to the {bucket} bucket"
     })
     return
 
 
 def get_bucket_encryption_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
     kwargs = {
-        "Bucket": bucket
+        "Bucket": bucket.lower()
     }
 
     if orenctl.getArg("expected_bucket_owner"):
@@ -343,7 +342,7 @@ def get_bucket_encryption_command():
         if ex.response.get('Error', {}).get('Code', '') != 'ServerSideEncryptionConfigurationNotFoundError':
             raise ex
         response = {}
-    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") == 200:
+    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
             "public_access_block": None,
@@ -357,7 +356,7 @@ def get_bucket_encryption_command():
 
 
 def upload_file_command():
-    bucket = orenctl.getArg("bucket").lower()
+    bucket = orenctl.getArg("bucket")
     if not bucket:
         orenctl.results(orenctl.error("Bucket S3 is required"))
         return
@@ -371,7 +370,7 @@ def upload_file_command():
     S3 = AwsS3()
     client = S3.create_client()
     with open(path, 'rb') as data:
-        client.upload_fileobj(data, bucket, key)
+        client.upload_fileobj(data, bucket.lower(), key)
         data.close()
         orenctl.results({
             "status_command": "Success",
@@ -380,8 +379,6 @@ def upload_file_command():
     os.remove(path)
     os.rmdir(tmpdir)
     return
-
-
 
 
 if orenctl.command == "aws_s3_create_bucket":
@@ -408,5 +405,3 @@ elif orenctl.command == "aws_s3_put_public_access_block":
     put_public_access_block_command()
 elif orenctl.command == "aws_s3_get_bucket_encryption":
     get_bucket_encryption_command()
-
-

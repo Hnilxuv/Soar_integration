@@ -10,7 +10,7 @@ import orenctl
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 SERVICE_NAME = "securityhub"
-
+from aws_security_hub import datafeedctl
 
 def camel_to_snake(name):
     # Thêm dấu gạch dưới trước các chữ cái viết hoa và chuyển tất cả về chữ thường

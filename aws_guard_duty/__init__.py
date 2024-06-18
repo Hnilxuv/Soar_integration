@@ -128,15 +128,15 @@ def create_detector():
 
     get_data_sources = dict()
 
-    if orenctl.getArg("enableKubernetesLogs"):
+    if orenctl.getArg("enable_kubernetes_logs"):
         get_data_sources.update(
-            {"Kubernetes": {"AuditLogs": {"Enable": arg_to_boolean(orenctl.getArg("enableKubernetesLogs"))}}})
-    if orenctl.getArg("ebsVolumesMalwareProtection"):
+            {"Kubernetes": {"AuditLogs": {"Enable": arg_to_boolean(orenctl.getArg("enable_kubernetes_logs"))}}})
+    if orenctl.getArg("ebs_volumes_malware_protection"):
         get_data_sources.update({"MalwareProtection": {
             "ScanEc2InstanceWithFindings": {
-                "EbsVolumes": arg_to_boolean(orenctl.getArg("ebsVolumesMalwareProtection"))}}})
-    if orenctl.getArg("enableS3Logs"):
-        get_data_sources.update({"S3Logs": {"Enable": arg_to_boolean(orenctl.getArg("enableS3Logs"))}})
+                "EbsVolumes": arg_to_boolean(orenctl.getArg("ebs_volumes_malware_protection"))}}})
+    if orenctl.getArg("enable_s3_logs"):
+        get_data_sources.update({"S3Logs": {"Enable": arg_to_boolean(orenctl.getArg("enable_s3_logs"))}})
     if get_data_sources:
         kwargs["DataSources"] = get_data_sources
 
@@ -166,7 +166,7 @@ def delete_detector():
     AGD = AwsGuardDuty()
     client = AGD.create_client()
     response = client.delete_detector(DetectorId=detect_id)
-    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 204:
+    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
             "message": f"The Detector {detect_id} failed to delete.",
@@ -194,10 +194,10 @@ def get_detector():
             "detector": None
         })
         return
-
+    del response["ResponseMetadata"]
     orenctl.results({
         "status_command": "Success",
-        "detector": response.get("DetectorId")
+        "detector": response
     })
     return
 
@@ -218,15 +218,15 @@ def update_detector():
 
     get_data_sources = dict()
 
-    if orenctl.getArg("enableKubernetesLogs"):
+    if orenctl.getArg("enable_kubernetes_logs"):
         get_data_sources.update(
-            {"Kubernetes": {"AuditLogs": {"Enable": arg_to_boolean(orenctl.getArg("enableKubernetesLogs"))}}})
-    if orenctl.getArg("ebsVolumesMalwareProtection"):
+            {"Kubernetes": {"AuditLogs": {"Enable": arg_to_boolean(orenctl.getArg("enable_kubernetes_logs"))}}})
+    if orenctl.getArg("ebs_volumes_malware_protection"):
         get_data_sources.update({"MalwareProtection": {
             "ScanEc2InstanceWithFindings": {
-                "EbsVolumes": arg_to_boolean(orenctl.getArg("ebsVolumesMalwareProtection"))}}})
-    if orenctl.getArg("enableS3Logs"):
-        get_data_sources.update({"S3Logs": {"Enable": arg_to_boolean(orenctl.getArg("enableS3Logs"))}})
+                "EbsVolumes": arg_to_boolean(orenctl.getArg("ebs_volumes_malware_protection"))}}})
+    if orenctl.getArg("enable_s3_logs"):
+        get_data_sources.update({"S3Logs": {"Enable": arg_to_boolean(orenctl.getArg("enable_s3_logs"))}})
     if get_data_sources:
         kwargs["DataSources"] = get_data_sources
 
@@ -400,15 +400,10 @@ def get_ip_set():
             "ip_set": None
         })
         return
-
+    del response["ResponseMetadata"]
     orenctl.results({
         "status_command": "Success",
-        "ip_set": {"DetectorId": detect_id,
-                   "IpSetId": ip_set_id,
-                   "Format": response["Format"],
-                   "Location": response["Location"],
-                   "Name": response["Name"],
-                   "Status": response["Status"]}
+        "ip_set": response
     })
 
 
@@ -468,13 +463,13 @@ def create_threat_intel_set():
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
             "status_command": "Fail",
-            "threat_intel_set": None
+            "threat_intel_set_id": None
         })
         return
 
     orenctl.results({
         "status_command": "Success",
-        "threat_intel_set": response.get("ThreatIntelSetId")
+        "threat_intel_set_id": response.get("ThreatIntelSetId")
     })
     return
 
@@ -570,15 +565,10 @@ def get_threat_intel_set():
             "threat_intel_set": None
         })
         return
-
+    del response["ResponseMetadata"]
     orenctl.results({
         "status_command": "Success",
-        "threat_intel_set": {"DetectorId": detect_id,
-                             "ThreatIntelSetId": threat_intel_set_id,
-                             "Format": response["Format"],
-                             "Location": response["Location"],
-                             "Name": response["Name"],
-                             "Status": response["Status"]}
+        "threat_intel_set": response
     })
 
 
@@ -656,7 +646,7 @@ def get_findings():
 
     AGD = AwsGuardDuty()
     client = AGD.create_client()
-    response = client.get_threat_intel_set(
+    response = client.get_findings(
         DetectorId=detect_id,
         findingIds=finding_ids
     )
@@ -699,7 +689,7 @@ def create_sample_findings():
 
     orenctl.results({
         "status_command": "Success",
-        "message": f"Sample Findings were generated"
+        "message": "Sample Findings were generated"
     })
     return
 
@@ -729,7 +719,7 @@ def archive_findings():
 
     orenctl.results({
         "status_command": "Success",
-        "message": f"Findings were archived"
+        "message": "Findings were archived"
     })
     return
 
@@ -814,17 +804,17 @@ def list_members():
             "PageSize": page_size,
         }
     )
-    findings = []
+    members = []
     for i, page_response in enumerate(response_iterator):
         if page is None or (page - 1) == i:
             for member in page_response["Members"]:
-                findings.append({"Member": member})
+                members.append({"Member": member})
             if page:
                 break
 
     orenctl.results({
         "status_command": "Success",
-        "findings": findings if findings else None
+        "members": members if members else None
     })
     return
 
@@ -841,7 +831,7 @@ def get_members():
 
     AGD = AwsGuardDuty()
     client = AGD.create_client()
-    response = client.get_threat_intel_set(
+    response = client.get_members(
         DetectorId=detect_id,
         AccountIds=account_ids
     )
@@ -879,7 +869,7 @@ def feed_alerts():
                 )
         else:
             result = result.get("extra_info")
-        timestamp = oldest_time
+        timestamp = None
         last_alert_id = None
         last_next_token = None
         if result and isinstance(result, dict):

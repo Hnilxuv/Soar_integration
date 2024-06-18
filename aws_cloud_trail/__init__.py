@@ -55,7 +55,7 @@ def create_trail():
         return
 
     s3_bucket_name = orenctl.getArg("s3_bucket_name")
-    if not name:
+    if not s3_bucket_name:
         orenctl.results(orenctl.error("S3_bucket_name is required"))
         return
     kwargs = {
@@ -84,14 +84,14 @@ def create_trail():
     response = client.create_trail(**kwargs)
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "trail": None
         })
         return
     if "ResponseMetadata" in response:
         del response["ResponseMetadata"]
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "trail": response
     })
     return
@@ -109,13 +109,13 @@ def delete_trail():
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "message": f"The Trail {name} could not be deleted"
         })
         return
 
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "message": f"The Trail {name} was deleted"
     })
     return
@@ -134,13 +134,13 @@ def describe_trails():
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "trails": None
         })
         return
 
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "trails": response.get("trailList")
     })
     return
@@ -154,18 +154,18 @@ def get_trail_status():
 
     ACT = AwsCloudTrail()
     client = ACT.create_client()
-    response = client.delete_trail(Name=name)
+    response = client.get_trail_status(Name=name)
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "trail_status": None
         })
         return
-    if "ResponseMetadata" not in response:
+    if "ResponseMetadata" in response:
         del response["ResponseMetadata"]
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "trail_status": response
     })
     return
@@ -203,14 +203,14 @@ def update_trail():
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "trail": None
         })
         return
-    if "ResponseMetadata" not in response:
+    if "ResponseMetadata" in response:
         del response["ResponseMetadata"]
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "trail": response
     })
     return
@@ -227,16 +227,16 @@ def start_logging():
 
     ACT = AwsCloudTrail()
     client = ACT.create_client()
-    response = client.update_trail(**kwargs)
+    response = client.start_logging(**kwargs)
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "message": f"The Trail {name} could not start logging"
         })
         return
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "message": f"The Trail {name} started logging"
     })
     return
@@ -257,12 +257,12 @@ def stop_logging():
 
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "message": f"The Trail {name} could not stopped logging"
         })
         return
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "message": f"The Trail {name} stopped logging"
     })
     return
@@ -301,7 +301,7 @@ def lookup_events():
                 events[i].update({"Username": event["Username"]})
 
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "events": events
     })
     return
@@ -313,12 +313,12 @@ def test_function():
     response = client.describe_trails()
     if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
         orenctl.results({
-            "status_orenctl.command()": "Fail",
+            "status_command": "Fail",
             "message": response
         })
         return
     orenctl.results({
-        "status_orenctl.command()": "Success",
+        "status_command": "Success",
         "message": "OK"
     })
     return
