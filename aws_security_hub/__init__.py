@@ -12,6 +12,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 SERVICE_NAME = "securityhub"
 from aws_security_hub import datafeedctl
 
+
 def camel_to_snake(name):
     # Thêm dấu gạch dưới trước các chữ cái viết hoa và chuyển tất cả về chữ thường
     snake = re.sub("([A-Z])", r"_\1", name).lower()
@@ -104,430 +105,18 @@ def safe_load_json(json_object):
     return safe_json
 
 
-def generate_kwargs_for_get_findings():
-    kwargs = {
-        "Filters": {
-            "ProductArn": [{
-                "Value": orenctl.getArg("product_arn_value"),
-                "Comparison": orenctl.getArg("product_arn_comparison"),
-
-            }],
-            "AwsAccountId": [{
-                "Value": orenctl.getArg("aws_account_id_value"),
-                "Comparison": orenctl.getArg("aws_account_id_comparison"),
-
-            }],
-            "Id": [{
-                "Value": orenctl.getArg("id_value"),
-                "Comparison": orenctl.getArg("id_comparison"),
-
-            }],
-            "GeneratorId": [{
-                "Value": orenctl.getArg("generator_id_value"),
-                "Comparison": orenctl.getArg("generator_id_comparison"),
-
-            }],
-            "Type": [{
-                "Value": orenctl.getArg("type_value"),
-                "Comparison": orenctl.getArg("type_comparison"),
-
-            }],
-            "FirstObservedAt": [{
-                "Start": orenctl.getArg("first_observed_at_start"),
-                "End": orenctl.getArg("first_observed_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-
-                },
-
-            }],
-            "LastObservedAt": [{
-                "Start": orenctl.getArg("last_observed_at_start"),
-                "End": orenctl.getArg("last_observed_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "CreatedAt": [{
-                "Start": orenctl.getArg("created_at_start"),
-                "End": orenctl.getArg("created_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "UpdatedAt": [{
-                "Start": orenctl.getArg("updated_at_start"),
-                "End": orenctl.getArg("updated_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "SeverityLabel": [{
-                "Value": orenctl.getArg("severity_label_value"),
-                "Comparison": orenctl.getArg("severity_label_comparison"),
-
-            }],
-            "Title": [{
-                "Value": orenctl.getArg("title_value"),
-                "Comparison": orenctl.getArg("title_comparison"),
-
-            }],
-            "Description": [{
-                "Value": orenctl.getArg("description_value"),
-                "Comparison": orenctl.getArg("description_comparison"),
-
-            }],
-            "RecommendationText": [{
-                "Value": orenctl.getArg("recommendation_text_value"),
-                "Comparison": orenctl.getArg("recommendation_text_comparison"),
-
-            }],
-            "SourceUrl": [{
-                "Value": orenctl.getArg("source_url_value"),
-                "Comparison": orenctl.getArg("source_url_comparison"),
-
-            }],
-            "ProductFields": [{
-                "Key": orenctl.getArg("product_fields_key"),
-                "Value": orenctl.getArg("product_fields_value"),
-                "Comparison": orenctl.getArg("product_fields_comparison"),
-
-            }],
-            "ProductName": [{
-                "Value": orenctl.getArg("product_name_value"),
-                "Comparison": orenctl.getArg("product_name_comparison"),
-
-            }],
-            "CompanyName": [{
-                "Value": orenctl.getArg("company_name_value"),
-                "Comparison": orenctl.getArg("company_name_comparison"),
-
-            }],
-            "UserDefinedFields": [{
-                "Key": orenctl.getArg("user_defined_fields_key"),
-                "Value": orenctl.getArg("user_defined_fields_value"),
-                "Comparison": orenctl.getArg("user_defined_fields_comparison"),
-
-            }],
-            "MalwareName": [{
-                "Value": orenctl.getArg("malware_name_value"),
-                "Comparison": orenctl.getArg("malware_name_comparison"),
-
-            }],
-            "MalwareType": [{
-                "Value": orenctl.getArg("malware_type_value"),
-                "Comparison": orenctl.getArg("malware_type_comparison"),
-
-            }],
-            "MalwarePath": [{
-                "Value": orenctl.getArg("malware_path_value"),
-                "Comparison": orenctl.getArg("malware_path_comparison"),
-
-            }],
-            "MalwareState": [{
-                "Value": orenctl.getArg("malware_state_value"),
-                "Comparison": orenctl.getArg("malware_state_comparison"),
-
-            }],
-            "NetworkDirection": [{
-                "Value": orenctl.getArg("network_direction_value"),
-                "Comparison": orenctl.getArg("network_direction_comparison"),
-
-            }],
-            "NetworkProtocol": [{
-                "Value": orenctl.getArg("network_protocol_value"),
-                "Comparison": orenctl.getArg("network_protocol_comparison"),
-
-            }],
-            "NetworkSourceIpV4": [{
-                "Cidr": orenctl.getArg("network_source_ip_v4_cidr"),
-
-            }],
-            "NetworkSourceIpV6": [{
-                "Cidr": orenctl.getArg("network_source_ip_v6_cidr"),
-
-            }],
-            "NetworkSourceDomain": [{
-                "Value": orenctl.getArg("network_source_domain_value"),
-                "Comparison": orenctl.getArg("network_source_domain_comparison"),
-
-            }],
-            "NetworkSourceMac": [{
-                "Value": orenctl.getArg("network_source_mac_value"),
-                "Comparison": orenctl.getArg("network_source_mac_comparison"),
-
-            }],
-            "NetworkDestinationIpV4": [{
-                "Cidr": orenctl.getArg("network_destination_ip_v4_cidr"),
-
-            }],
-            "NetworkDestinationIpV6": [{
-                "Cidr": orenctl.getArg("network_destination_ip_v6_cidr"),
-
-            }],
-            "NetworkDestinationDomain": [{
-                "Value": orenctl.getArg("network_destination_domain_value"),
-                "Comparison": orenctl.getArg("network_destination_domain_comparison"),
-
-            }],
-            "ProcessName": [{
-                "Value": orenctl.getArg("process_name_value"),
-                "Comparison": orenctl.getArg("process_name_comparison"),
-
-            }],
-            "ProcessPath": [{
-                "Value": orenctl.getArg("process_path_value"),
-                "Comparison": orenctl.getArg("process_path_comparison"),
-
-            }],
-
-            "ProcessLaunchedAt": [{
-                "Start": orenctl.getArg("process_launched_at_start"),
-                "End": orenctl.getArg("process_launched_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "ProcessTerminatedAt": [{
-                "Start": orenctl.getArg("process_terminated_at_start"),
-                "End": orenctl.getArg("process_terminated_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "ThreatIntelIndicatorType": [{
-                "Value": orenctl.getArg("threat_intel_indicator_type_value"),
-                "Comparison": orenctl.getArg("threat_intel_indicator_type_comparison"),
-
-            }],
-            "ThreatIntelIndicatorValue": [{
-                "Value": orenctl.getArg("threat_intel_indicator_value_value"),
-                "Comparison": orenctl.getArg("threat_intel_indicator_value_comparison"),
-
-            }],
-            "ThreatIntelIndicatorCategory": [{
-                "Value": orenctl.getArg("threat_intel_indicator_category_value"),
-                "Comparison": orenctl.getArg("threat_intel_indicator_category_comparison"),
-
-            }],
-            "ThreatIntelIndicatorLastObservedAt": [{
-                "Start": orenctl.getArg("threat_intel_indicator_last_observed_at_start"),
-                "End": orenctl.getArg("threat_intel_indicator_last_observed_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-
-                },
-            }],
-            "ThreatIntelIndicatorSource": [{
-                "Value": orenctl.getArg("threat_intel_indicator_source_value"),
-                "Comparison": orenctl.getArg("threat_intel_indicator_source_comparison"),
-
-            }],
-            "ThreatIntelIndicatorSourceUrl": [{
-                "Value": orenctl.getArg("threat_intel_indicator_source_url_value"),
-                "Comparison": orenctl.getArg("threat_intel_indicator_source_url_comparison"),
-
-            }],
-            "ResourceType": [{
-                "Value": orenctl.getArg("resource_type_value"),
-                "Comparison": orenctl.getArg("resource_type_comparison"),
-
-            }],
-            "ResourceId": [{
-                "Value": orenctl.getArg("resource_id_value"),
-                "Comparison": orenctl.getArg("resource_id_comparison"),
-
-            }],
-            "ResourcePartition": [{
-                "Value": orenctl.getArg("resource_partition_value"),
-                "Comparison": orenctl.getArg("resource_partition_comparison"),
-
-            }],
-            "ResourceRegion": [{
-                "Value": orenctl.getArg("resource_region_value"),
-                "Comparison": orenctl.getArg("resource_region_comparison"),
-
-            }],
-            "ResourceTags": [{
-                "Key": orenctl.getArg("resource_tags_key"),
-                "Value": orenctl.getArg("resource_tags_value"),
-                "Comparison": orenctl.getArg("resource_tags_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceType": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_type_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_type_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceImageId": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_image_id_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_image_id_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceIpV4Addresses": [{
-                "Cidr": orenctl.getArg("resource_aws_ec2_instance_ip_v4_addresses_cidr"),
-
-            }],
-            "ResourceAwsEc2InstanceIpV6Addresses": [{
-                "Cidr": orenctl.getArg("resource_aws_ec2_instance_ip_v6_addresses_cidr"),
-
-            }],
-            "ResourceAwsEc2InstanceKeyName": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_key_name_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_key_name_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceIamInstanceProfileArn": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_iam_instance_profile_arn_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_iam_instance_profile_arn_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceVpcId": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_vpc_id_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_vpc_id_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceSubnetId": [{
-                "Value": orenctl.getArg("resource_aws_ec2_instance_subnet_id_value"),
-                "Comparison": orenctl.getArg("resource_aws_ec2_instance_subnet_id_comparison"),
-
-            }],
-            "ResourceAwsEc2InstanceLaunchedAt": [{
-                "Start": orenctl.getArg("resource_aws_ec2_instance_launched_at_start"),
-                "End": orenctl.getArg("resource_aws_ec2_instance_launched_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "ResourceAwsS3BucketOwnerId": [{
-                "Value": orenctl.getArg("resource_aws_s3_bucket_owner_id_value"),
-                "Comparison": orenctl.getArg("resource_aws_s3_bucket_owner_id_comparison"),
-
-            }],
-            "ResourceAwsS3BucketOwnerName": [{
-                "Value": orenctl.getArg("resource_aws_s3_bucket_owner_name_value"),
-                "Comparison": orenctl.getArg("resource_aws_s3_bucket_owner_name_comparison"),
-
-            }],
-            "ResourceAwsIamAccessKeyUserName": [{
-                "Value": orenctl.getArg("resource_aws_iam_access_key_user_name_value"),
-                "Comparison": orenctl.getArg("resource_aws_iam_access_key_user_name_comparison"),
-
-            }],
-            "ResourceAwsIamAccessKeyStatus": [{
-                "Value": orenctl.getArg("resource_aws_iam_access_key_status_value"),
-                "Comparison": orenctl.getArg("resource_aws_iam_access_key_status_comparison"),
-
-            }],
-            "ResourceAwsIamAccessKeyCreatedAt": [{
-                "Start": orenctl.getArg("resource_aws_iam_access_key_created_at_start"),
-                "End": orenctl.getArg("resource_aws_iam_access_key_created_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "ResourceContainerName": [{
-                "Value": orenctl.getArg("resource_container_name_value"),
-                "Comparison": orenctl.getArg("resource_container_name_comparison"),
-
-            }],
-            "ResourceContainerImageId": [{
-                "Value": orenctl.getArg("resource_container_image_id_value"),
-                "Comparison": orenctl.getArg("resource_container_image_id_comparison"),
-
-            }],
-            "ResourceContainerImageName": [{
-                "Value": orenctl.getArg("resource_container_image_name_value"),
-                "Comparison": orenctl.getArg("resource_container_image_name_comparison"),
-
-            }],
-            "ResourceContainerLaunchedAt": [{
-                "Start": orenctl.getArg("resource_container_launched_at_start"),
-                "End": orenctl.getArg("resource_container_launched_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "ResourceDetailsOther": [{
-                "Key": orenctl.getArg("resource_details_other_key"),
-                "Value": orenctl.getArg("resource_details_other_value"),
-                "Comparison": orenctl.getArg("resource_details_other_comparison"),
-
-            }],
-            "ComplianceStatus": [{
-                "Value": orenctl.getArg("compliance_status_value"),
-                "Comparison": orenctl.getArg("compliance_status_comparison"),
-
-            }],
-            "VerificationState": [{
-                "Value": orenctl.getArg("verification_state_value"),
-                "Comparison": orenctl.getArg("verification_state_comparison"),
-
-            }],
-            "WorkflowState": [{
-                "Value": orenctl.getArg("workflow_state_value"),
-                "Comparison": orenctl.getArg("workflow_state_comparison"),
-
-            }],
-            "RecordState": [{
-                "Value": orenctl.getArg("record_state_value"),
-                "Comparison": orenctl.getArg("record_state_comparison"),
-
-            }],
-            "RelatedFindingsProductArn": [{
-                "Value": orenctl.getArg("related_findings_product_arn_value"),
-                "Comparison": orenctl.getArg("related_findings_product_arn_comparison"),
-
-            }],
-            "RelatedFindingsId": [{
-                "Value": orenctl.getArg("related_findings_id_value"),
-                "Comparison": orenctl.getArg("related_findings_id_comparison"),
-
-            }],
-            "NoteText": [{
-                "Value": orenctl.getArg("note_text_value"),
-                "Comparison": orenctl.getArg("note_text_comparison"),
-
-            }],
-            "NoteUpdatedAt": [{
-                "Start": orenctl.getArg("note_updated_at_start"),
-                "End": orenctl.getArg("note_updated_at_end"),
-                "DateRange": {
-                    "Unit": orenctl.getArg("date_range_unit"),
-                },
-            }],
-            "NoteUpdatedBy": [{
-                "Value": orenctl.getArg("note_updated_by_value"),
-                "Comparison": orenctl.getArg("note_updated_by_comparison"),
-
-            }],
-            "Keyword": [{
-                "Value": orenctl.getArg("keyword_value"),
-
-            }],
-
-        },
-        "SortCriteria": [{
-            "Field": orenctl.getArg("sort_criteria_field"),
-            "SortOrder": orenctl.getArg("sort_criteria_sort_order"),
-
-        }],
-        "NextToken": orenctl.getArg("next_token"),
-
-    }
-    kwargs = remove_empty_elements(kwargs)
-    kwargs = get_raw_json_arg(kwargs)
-
-    kwargs["MaxResults"] = 100
-    return kwargs
-
-
 def get_findings_command():
-    kwargs = generate_kwargs_for_get_findings()
-
+    kwargs = {}
+    kwargs = get_raw_json_arg(kwargs)
     ASH = AwsSecurityHub()
     client = ASH.create_client()
     response = client.get_findings(**kwargs)
+    if response.get("ResponseMetadata", {}).get("HTTPStatusCode") != 200:
+        return orenctl.results({
+            "status_command": "Fail",
+            "findings": response
+        })
+
     findings = response.get("Findings", [])
     next_token = response.get("NextToken")
     while next_token:
@@ -580,7 +169,7 @@ def enable_security_hub_command():
 
     }
     kwargs = remove_empty_elements(kwargs)
-    get_raw_json_arg(kwargs)
+    kwargs = get_raw_json_arg(kwargs)
     ASH = AwsSecurityHub()
     client = ASH.create_client()
     response = client.enable_security_hub(**kwargs)
@@ -643,11 +232,14 @@ def list_members_command():
 
 
 def update_findings_command():
+    finding_id = orenctl.getArg("finding_id")
+    if not finding_id:
+        return orenctl.results(orenctl.error("finding_id is required"))
     kwargs = {
         "Filters": {
             "Id": [
                 {
-                    "Value": orenctl.getArg("findingId"),
+                    "Value": finding_id,
                     "Comparison": "EQUALS"
                 },
             ]
@@ -679,11 +271,17 @@ def update_findings_command():
 
 
 def batch_update_findings_command():
+    finding_identifiers_id = orenctl.getArg("finding_identifiers_id")
+    if not finding_identifiers_id:
+        return orenctl.results(orenctl.error("finding_identifiers_id is required"))
+    finding_identifiers_product_arn = orenctl.getArg("finding_identifiers_product_arn")
+    if not finding_identifiers_product_arn:
+        return orenctl.results(orenctl.error("finding_identifiers_product_arn is required"))
     kwargs = {
         "FindingIdentifiers": [
             {
-                "Id": orenctl.getArg("finding_identifiers_id"),
-                "ProductArn": orenctl.getArg("finding_identifiers_product_arn"),
+                "Id": finding_identifiers_id,
+                "ProductArn": finding_identifiers_product_arn,
             },
         ],
         "Note": {
@@ -707,7 +305,7 @@ def batch_update_findings_command():
         }],
     }
     kwargs = remove_empty_elements(kwargs)
-    kwargs = get_raw_json_arg(kwargs)
+    get_raw_json_arg(kwargs)
     ASH = AwsSecurityHub()
     client = ASH.create_client()
     response = client.batch_update_findings(**kwargs)
@@ -798,12 +396,6 @@ def feed_alerts():
         return normalize_alerts
 
     def build_severity_label_obj(label: str):
-        """ Returns the object for the severity label in the fetch.
-            Args:
-                label: str - The severity label the user provided.
-            Returns:
-                A list of dictionaries to be sent in the filters object.
-        """
         severity_dict = {
             "Informational": 0,
             "Low": 1,
@@ -826,13 +418,6 @@ def feed_alerts():
         return severity_label_obj
 
     def create_filters_list_dictionaries(arr, compare_param):
-        """ Returns the object for the filters dictionary.
-            Args:
-                arr: List[str] - An array of strings
-                compare_param: str - The comparison string. can be EQUALS or PREFIX.
-            Returns:
-                The correct object to add to filters.
-        """
         result_arr = []
         for item in arr:
             d = {
@@ -897,13 +482,13 @@ def feed_alerts():
         datafeedctl.sync_alerts(alerts, extra_info=last_alert)
         return
     # orenctl.log(f"alerts qty: {len(alerts)}")
-    last_created_alert = max(alerts, key=lambda alert: alert.get("CreatedAt")).get("CreatedAt")
-    last_created_alert_dt = dateparser.parse(last_created_alert) + timedelta(milliseconds=1)
+    the_last_alert = max(alerts, key=lambda alert: alert.get("CreatedAt"))
+    last_created_alert_dt = dateparser.parse(the_last_alert.get("CreatedAt")) + timedelta(milliseconds=1)
     last_alert_time = last_created_alert_dt.isoformat()
     alerts = normalize_alert(alerts)
     extra_info = {
         "last_alert_time": last_alert_time,
-        "last_alert_id": last_alert_id.get("security_hub_id"),
+        "last_alert_id": the_last_alert.get("security_hub_id"),
         "last_next_token": last_next_token
     }
     # orenctl.log(f"extra_info = {extra_info}")
