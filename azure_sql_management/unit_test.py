@@ -1,6 +1,4 @@
 import unittest
-import json
-import copy
 import requests_mock
 from unittest.mock import patch, MagicMock
 import orenctl
